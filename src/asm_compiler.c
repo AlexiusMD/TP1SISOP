@@ -1,9 +1,11 @@
 #include "../includes/asm_compiler.h"
+#include "../includes/asm_funcs.h"
+#include "../includes/file_reader.h"
 #include "../includes/task.h"
 #include <stdio.h>
 #include <string.h>
 
-Instruction* parse_instructions(char* instructions_text[], int count) {
+Instruction* parse_instructions(char instructions_text[], int count) {
     Instruction* result = (Instruction*)malloc(count * sizeof(Instruction));
     if (!result) {
         printf("Memory allocation error - Instructions array\n");
@@ -91,6 +93,8 @@ TaskControlBlock* parse_program(const char* filename) {
     }
 
     Instruction* task_instructions = parse_instructions(code_section, count);
+
+    free(task_instructions);
     
     char* data[MAX_BUFFER_SIZE];
     count = 0;
