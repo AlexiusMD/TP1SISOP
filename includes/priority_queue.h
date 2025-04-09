@@ -2,7 +2,7 @@
 #define PRIORITY_QUEUE
 #define MAX_QUEUE_SIZE 100
 
-#include <task.h>
+typedef struct TaskControlBlock TaskControlBlock;
 
 typedef struct PriorityQueue {
     TaskControlBlock* queue[MAX_QUEUE_SIZE];
