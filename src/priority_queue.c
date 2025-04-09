@@ -1,4 +1,5 @@
 #include "priority_queue.h"
+#include "task.h"
 #include <stdlib.h>
 
 void enqueue(TaskControlBlock* tcb, PriorityQueue* queue) {
