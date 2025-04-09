@@ -2,7 +2,6 @@
 #define ASM_COMPILER_H
 
 #include <stdlib.h>
-#include <stdbool.h>
 
 #define MAX_LABEL_TITLE_SIZE 255
 #define BAD_SYNTAX printf("Syntax formatting error\n");
