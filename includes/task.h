@@ -3,8 +3,6 @@
 
 #include <stdlib.h>
 
-#define MAX_BUFFER_SIZE 256
-
 typedef enum TaskStates {
     NEW,
     RUNNING,
@@ -18,7 +16,7 @@ typedef struct Variable Variable;
 typedef struct Instruction Instruction;
 
 typedef struct TaskControlBlock {
-    size_t id;
+    size_t pid;
     int32_t acc;
     size_t program_counter;
     Instruction* instructions;
@@ -29,4 +27,5 @@ typedef struct TaskControlBlock {
     int8_t deadline;
 } TaskControlBlock;
 
+TaskControlBlock* instantiate_tcb(Instruction* instructions, Label* labels, Variable* variables);
 #endif

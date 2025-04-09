@@ -5,109 +5,18 @@
 #include <stdio.h>
 #include <string.h>
 
-Instruction* parse_instructions(char instructions_text[], int count) {
-    Instruction* result = (Instruction*)malloc(count * sizeof(Instruction));
-    if (!result) {
-        printf("Memory allocation error - Instructions array\n");
-        return NULL;
-    }
-
-    return result;
-}
-
 TaskControlBlock* parse_program(const char* filename) {
     char* buffer = read_program_file(filename);
 
-    char* instructions_start = strstr(buffer, ".code");
-    char* instructions_end = strstr(buffer, ".endcode");
-    char* data_start = strstr(buffer, ".data");
-    char* data_end = strstr(buffer, ".enddata");
-
-    if (!instructions_start || !instructions_end || !data_start || !data_end) {
-        printf("Missing sections on the file:\n");
-        if (!instructions_start) printf("- .code\n");
-        if (!instructions_end) printf("- .endcode\n");
-        if (!data_start) printf("- .data\n");
-        if (!data_end) printf("- .enddata\n");
-        
-        BAD_SYNTAX
-        free(buffer);
-        return NULL;
-    }
-
-    size_t code_size = instructions_end - instructions_start;
-    char* code_section = (char*)malloc(code_size + 1);
-    if (!code_section) {
-        printf("Memory allocation error - Code section\n");
-        free(buffer);
-        return NULL;
-    }
-
-    char* code_content_start = strchr(instructions_start, '\n');
-    if (!code_content_start) {
-        BAD_SYNTAX
-        free(buffer);
-        free(code_section);
-        return NULL;
-    }
-    code_content_start++;
-
-    code_size = instructions_end - code_content_start;
-    strncpy(code_section, code_content_start, code_size);
-    code_section[code_size] = '\0';
-
-    size_t data_size = data_end - data_start;
-    char* data_section = (char*)malloc(data_size + 1);
-    if (!data_section) {
-        printf("Memory allocation error - Data section\n");
-        free(buffer);
-        free(code_section);
-        return NULL;
-    }
-
-    char* data_content_start = strchr(data_start, '\n');
-    if (!data_content_start) {
-        BAD_SYNTAX
-        free(buffer);
-        free(code_section);
-        free(data_section);
-        return NULL;
-    }
-    data_content_start++;
-
-    data_size = data_end - data_content_start;
-    strncpy(data_section, data_content_start, data_size);
-    data_section[data_size] = '\0';
-
-    char* instructions[MAX_BUFFER_SIZE];
     int count = 0;
+    char** code_section = tokenize_sections(buffer, "code", &count);
 
-    char* linha = strtok(code_section, "\n");
-    while (linha && count < MAX_BUFFER_SIZE) {
-        instructions[count++] = linha;
-        linha = strtok(NULL, "\n");
-    }
-
-    for (int i = 0; i < count; i++) {
-        printf("%s\n", instructions[i]);
-    }
-
-    Instruction* task_instructions = parse_instructions(code_section, count);
+    Instruction* task_instructions = parse_instructions(code_section,  count);
 
     free(task_instructions);
-    
-    char* data[MAX_BUFFER_SIZE];
+
     count = 0;
-    
-    linha = strtok(data_section, "\n");
-    while (linha && count < MAX_BUFFER_SIZE) {
-        data[count++] = linha;
-        linha = strtok(NULL, "\n");
-    }
-    
-    for (int i = 0; i < count; i++) {
-        printf("%s\n", data[i]);
-    }
+    char** data_section = tokenize_sections(buffer, "data", &count);
 
     TaskControlBlock* tcb = (TaskControlBlock*) malloc(sizeof(TaskControlBlock));
 
@@ -126,74 +35,95 @@ TaskControlBlock* parse_program(const char* filename) {
     return tcb;
 }
 
-/*
-    Arithmetic operations (Operate on the accumulator)
-*/
-void increment(TaskControlBlock* tcb, int operand) {
-    tcb->acc += operand;
-}
-void decrement(TaskControlBlock* tcb, int operand) {
-    tcb->acc -= operand;
-}
-void multiply (TaskControlBlock* tcb, int operand) {
-    tcb->acc *= operand;
-}
-void divide   (TaskControlBlock* tcb, int operand) {
-    tcb->acc /= operand;
+Instruction* parse_instructions(char* instructions_text[], int count) {
+    Instruction* result = (Instruction*)malloc(count * sizeof(Instruction));
+    if (!result) {
+        printf("Memory allocation error - Instructions array\n");
+        return NULL;
+    }
+
+    for(int i = 0; i < count; i++) {
+        printf("%s\n", instructions_text[i]);
+    }
+
+    return result;
 }
 
-/*
-    Memory operations (Operate on the data section)
-*/
-void load     (TaskControlBlock* tcb, char* operand) {
-    for(size_t i = 0; i < MAX_BUFFER_SIZE; i++) {
-        Variable *var = &tcb->data[i];
+char** tokenize_sections(char* buffer, char section_name[], int* line_count) {
+    char* start_pattern = malloc(strlen(section_name) + 2);
+    char* end_pattern = malloc(strlen(section_name) + 5);
+    
+    if (!start_pattern || !end_pattern) {
+        printf("Erro de alocação de memória\n");
+        if (start_pattern) free(start_pattern);
+        if (end_pattern) free(end_pattern);
+        return NULL;
+    }
 
-        if(strcmp(var->name, operand)) {
-            tcb->acc = var->value;
-            return;
+    sprintf(start_pattern, ".%s", section_name);
+    sprintf(end_pattern, ".end%s", section_name);
+
+    char* section_start = strstr(buffer, start_pattern);
+    char* section_end = strstr(buffer, end_pattern);
+
+    free(start_pattern);
+    free(end_pattern);
+    
+    if (!section_start || !section_end) {
+        printf("Missing sections on the file:\n");
+        printf("End or start missing - %s\n", section_name);
+        BAD_SYNTAX
+        return NULL;
+    }
+
+    char* section_content_start = strchr(section_start, '\n');
+    if (!section_content_start) {
+        BAD_SYNTAX
+        return NULL;
+    }
+    section_content_start++;
+
+    size_t section_size = section_end - section_content_start;
+    
+    char* section_text = (char *) malloc(section_size + 1);
+    if (!section_text) {
+        printf("Erro de alocação de memória\n");
+        return NULL;
+    }
+
+    strncpy(section_text, section_content_start, section_size);
+    section_text[section_size] = '\0';
+
+    size_t max_possible_lines = section_size / 2 + 1;
+
+    char** tokenized_section = (char**) malloc(max_possible_lines * sizeof(char*));
+    if (!tokenized_section) {
+        printf("Erro de alocação de memória para tokenized_section\n");
+        free(section_text);
+        return NULL;
+    }
+
+    int count = 0;
+    char* linha = strtok(section_text, "\n");
+    while (linha && count < max_possible_lines) {
+        tokenized_section[count] = strdup(linha);
+        if (!tokenized_section[count]) {
+            for (int i = 0; i < count; i++) {
+                free(tokenized_section[i]);
+            }
+            free(tokenized_section);
+            free(section_text);
+            return NULL;
         }
-    }
-}
-void store    (TaskControlBlock* tcb, char* operand) {
-    for(size_t i = 0; i < MAX_BUFFER_SIZE; i++) {
-        Variable *var = &tcb->data[i];
-
-        if(strcmp(var->name, operand)) {
-            var->value = tcb->acc;
-            return;
-        }
-    }
-}
-
-/*
-    Jump operations (Jump to labels on instruction set)
-*/
-void brany     (TaskControlBlock* tcb, Label* label) {
-    branch_helper(tcb, label, true);
-}
-
-void brpos     (TaskControlBlock* tcb, Label* label) {
-    branch_helper(tcb, label, tcb->acc > 0);
-}
-
-void brzero    (TaskControlBlock* tcb, Label* label) {
-    branch_helper(tcb, label, tcb->acc == 0);
-}
-
-void brneg     (TaskControlBlock* tcb, Label* label) {
-    branch_helper(tcb, label, tcb->acc < 0);
-}
-
-void branch_helper(TaskControlBlock* tcb, Label* label, bool condition) {
-    if (!condition) {
-        return;
+        count++;
+        linha = strtok(NULL, "\n");
     }
 
-    tcb->program_counter = label->mem_pos;
-}
+    if (line_count != NULL) {
+        *line_count = count;
+    }
+    
+    free(section_text);
 
-/*
-    System call
-*/
-void syscall    (TaskControlBlock* tcb, int index);
+    return tokenized_section;
+}

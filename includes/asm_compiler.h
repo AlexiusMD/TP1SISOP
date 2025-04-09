@@ -3,18 +3,18 @@
 
 #include <stdlib.h>
 
-#define MAX_LABEL_TITLE_SIZE 255
+#define MAX_TITLE_SIZE 256 // (2^8) chars + 1 null byte
 #define BAD_SYNTAX printf("Syntax formatting error\n");
 
 typedef struct TaskControlBlock TaskControlBlock;
 
 typedef struct Label {
-    char title[MAX_LABEL_TITLE_SIZE];
+    char title[MAX_TITLE_SIZE];
     size_t mem_pos;
 } Label;
 
 typedef struct Variable {
-    char name[MAX_LABEL_TITLE_SIZE];
+    char name[MAX_TITLE_SIZE];
     int value;
 } Variable;
 
@@ -33,5 +33,7 @@ typedef struct Instruction {
 } Instruction;
 
 TaskControlBlock* parse_program(const char* filename);
+Instruction* parse_instructions(char* instructions_text[], int count);
+char** tokenize_sections(char* buffer, char section_name[], int* line_count);
 
 #endif
