@@ -1,10 +1,9 @@
 #ifndef ASM_FUNCS_H
 #define ASM_FUNCS_H
 
-#include <stdbool.h>
-
 typedef struct TaskControlBlock TaskControlBlock;
 typedef struct Label Label;
+
 // Instructions included in ASM language
 
 /*
@@ -33,11 +32,5 @@ void brneg     (TaskControlBlock* tcb, Label* label);
     System call
 */
 void syscall    (TaskControlBlock* tcb, int index);
-
-/*
-    Helper functions
-*/
-
-void branch_helper(TaskControlBlock* tcb, Label* label, bool condition);
 
 #endif

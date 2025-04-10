@@ -1,6 +1,7 @@
 #include "../includes/asm_funcs.h"
 #include "../includes/asm_compiler.h"
 #include "../includes/task.h"
+#include "../includes/helpers.h"
 #include <string.h>
 
 /*
@@ -60,14 +61,6 @@ void brzero    (TaskControlBlock* tcb, Label* label) {
 
 void brneg     (TaskControlBlock* tcb, Label* label) {
     branch_helper(tcb, label, tcb->acc < 0);
-}
-
-void branch_helper(TaskControlBlock* tcb, Label* label, bool condition) {
-    if (!condition) {
-        return;
-    }
-
-    tcb->program_counter = label->mem_pos;
 }
 
 /*
