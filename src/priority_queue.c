@@ -1,6 +1,7 @@
-#include "priority_queue.h"
-#include "task.h"
+#include "../includes/priority_queue.h"
+#include "../includes/task.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 void enqueue(TaskControlBlock* tcb, PriorityQueue* queue) {
     if (queue->size == queue->capacity) {
