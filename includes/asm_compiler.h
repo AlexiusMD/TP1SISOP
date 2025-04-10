@@ -47,6 +47,6 @@ typedef struct Instruction {
 } Instruction;
 
 TaskControlBlock* parse_program(const char* filename);
-Instruction* parse_instructions(char* instructions_text[], int count);
+Instruction* parse_instruction_section(char* instructions_text[], int count);
 
 #endif

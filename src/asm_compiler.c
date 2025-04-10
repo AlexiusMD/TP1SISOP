@@ -12,7 +12,7 @@ TaskControlBlock* parse_program(const char* filename) {
     int count = 0;
     char** code_section = tokenize_sections(buffer, "code", &count);
 
-    Instruction* task_instructions = parse_instructions(code_section,  count);
+    Instruction* task_instructions = parse_instruction_section(code_section,  count);
 
     free(task_instructions);
 
@@ -36,7 +36,7 @@ TaskControlBlock* parse_program(const char* filename) {
     return tcb;
 }
 
-Instruction* parse_instructions(char* instructions_text[], int count) {
+Instruction* parse_instruction_section(char* instructions_text[], int count) {
     int actual_instruction_count = 0;
     for(int i = 0; i < count; i++) {
         char* line = strip_whitespace(instructions_text[i]);

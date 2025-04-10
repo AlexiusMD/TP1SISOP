@@ -1,6 +1,8 @@
 #ifndef ASM_FUNCS_H
 #define ASM_FUNCS_H
 
+#include <stdbool.h>
+
 typedef struct TaskControlBlock TaskControlBlock;
 typedef struct Label Label;
 
@@ -33,4 +35,9 @@ void brneg     (TaskControlBlock* tcb, Label* label);
 */
 void syscall    (TaskControlBlock* tcb, int index);
 
+/*
+    Helper
+*/
+
+void branch_helper(TaskControlBlock* tcb, Label* label, bool condition);
 #endif

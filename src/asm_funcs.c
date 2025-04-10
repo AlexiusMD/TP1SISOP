@@ -67,3 +67,15 @@ void brneg     (TaskControlBlock* tcb, Label* label) {
     System call
 */
 void syscall    (TaskControlBlock* tcb, int index);
+
+
+/*
+    Branch helper function
+*/
+void branch_helper(TaskControlBlock* tcb, Label* label, bool condition) {
+    if (!condition) {
+        return;
+    }
+
+    tcb->program_counter = label->mem_pos;
+}

@@ -7,17 +7,6 @@
 #include <ctype.h>
 
 /*
-    ASM funcs helper functions
-*/
-
-void branch_helper(TaskControlBlock* tcb, Label* label, bool condition) {
-    if (!condition) {
-        return;
-    }
-
-    tcb->program_counter = label->mem_pos;
-}
-/*
     Compiler helper functions
 */
 
@@ -119,39 +108,17 @@ char* strip_whitespace(char* str) {
 }
 
 int get_op_code_from_instruction_name(char* name) {
-    if(strcmp(name, "add") == 0) {
-        return ADD;
-    }
-    if(strcmp(name, "sub") == 0) {
-        return SUB;
-    }
-    if(strcmp(name, "mult") == 0) {
-        return MULT;
-    }
-    if(strcmp(name, "div") == 0) {
-        return DIV;
-    }
-    if(strcmp(name, "load") == 0) {
-        return LOAD;
-    }
-    if(strcmp(name, "store") == 0) {
-        return STORE;
-    }
-    if(strcmp(name, "brany") == 0) {
-        return BRANY;
-    }
-    if(strcmp(name, "brpos") == 0) {
-        return BRPOS;
-    }
-    if(strcmp(name, "brzero") == 0) {
-        return BRZERO;
-    }
-    if(strcmp(name, "brneg") == 0) {
-        return BRNEG;
-    }
-    if(strcmp(name, "syscall") == 0) {
-        return SYSCALL;
-    }
+    if(strcmp(name, "add") == 0)     return ADD;
+    if(strcmp(name, "sub") == 0)     return SUB;
+    if(strcmp(name, "mult") == 0)    return MULT;
+    if(strcmp(name, "div") == 0)     return DIV;
+    if(strcmp(name, "load") == 0)    return LOAD;
+    if(strcmp(name, "store") == 0)   return STORE;
+    if(strcmp(name, "brany") == 0)   return BRANY;
+    if(strcmp(name, "brpos") == 0)   return BRPOS;
+    if(strcmp(name, "brzero") == 0)  return BRZERO;
+    if(strcmp(name, "brneg") == 0)   return BRNEG;
+    if(strcmp(name, "syscall") == 0) return SYSCALL;
 
     return -1;
 }
@@ -170,30 +137,18 @@ char* to_lowercase(char* str) {
 
 InstructionFn get_instruction_function(OPCode opcode) {
     switch (opcode) {
-        case ADD:
-            return increment_wrapper;
-        case SUB:
-            return decrement_wrapper;
-        case MULT:
-            return multiply_wrapper;
-        case DIV:
-            return divide_wrapper;
-        case STORE:
-            return store_wrapper;
-        case LOAD:
-            return load_wrapper;
-        case BRANY:
-            return brany_wrapper;
-        case BRPOS:
-            return brpos_wrapper;
-        case BRZERO:
-            return brzero_wrapper;
-        case BRNEG:
-            return brneg_wrapper;
-        case SYSCALL:
-            return syscall_wrapper;
-        default:
-            return NULL;
+        case ADD:     return increment_wrapper;
+        case SUB:     return decrement_wrapper;
+        case MULT:    return multiply_wrapper;
+        case DIV:     return divide_wrapper;
+        case STORE:   return store_wrapper;
+        case LOAD:    return load_wrapper;
+        case BRANY:   return brany_wrapper;
+        case BRPOS:   return brpos_wrapper;
+        case BRZERO:  return brzero_wrapper;
+        case BRNEG:   return brneg_wrapper;
+        case SYSCALL: return syscall_wrapper;
+        default:      return NULL;
     }
 }
 
