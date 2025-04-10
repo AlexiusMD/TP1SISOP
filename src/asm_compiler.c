@@ -12,9 +12,9 @@ TaskControlBlock* parse_program(const char* filename) {
     int count = 0;
     char** code_section = tokenize_sections(buffer, "code", &count);
 
-    Instruction* task_instructions = parse_instruction_section(code_section,  count);
+    TaskCodeSection* task_instruction_section = parse_instruction_section(code_section,  count);
 
-    free(task_instructions);
+    free(task_instruction_section);
 
     count = 0;
     char** data_section = tokenize_sections(buffer, "data", &count);
@@ -36,42 +36,71 @@ TaskControlBlock* parse_program(const char* filename) {
     return tcb;
 }
 
-Instruction* parse_instruction_section(char* instructions_text[], int count) {
-    int actual_instruction_count = 0;
+TaskCodeSection* parse_instruction_section(char* instructions_text[], int count) {
+    int instruction_count = 0;
+    int label_count = 0;
+
     for(int i = 0; i < count; i++) {
         char* line = strip_whitespace(instructions_text[i]);
-        if (line && strlen(line) > 0 && line[strlen(line) - 1] != ':') {
-            actual_instruction_count++;
+        if (!line || strlen(line) == 0) continue;
+        
+        if (line[strlen(line) - 1] == ':') {
+            label_count++;
+            continue;
         }
+
+        instruction_count++;
     }
 
-    Instruction* result = (Instruction*)malloc(actual_instruction_count * sizeof(Instruction));
-    if (!result) {
+    TaskCodeSection* task_code_section = (TaskCodeSection*) malloc(sizeof(TaskCodeSection));
+    if(!task_code_section) {
+        printf("Erro na alocação de memória - Task Code Section struct\n");
+        return NULL;
+    }
+
+    Instruction* instructions = (Instruction*) malloc(instruction_count * sizeof(Instruction));
+    if (!instructions) {
         printf("Erro na alocação de memória - Array de Instruções\n");
+        free(task_code_section);
+        return NULL;
+    }
+
+    Label* labels = (Label*) malloc(label_count * sizeof(Label));
+    if (!labels) {
+        printf("Erro na alocação de memória - Array de Labels\n");
+        free(task_code_section);
+        free(instructions);
         return NULL;
     }
 
     int current_instruction_index = 0;
+    int current_label_index = 0;
+    
     for(int i = 0; i < count; i++) {
-        char* current_instruction = strip_whitespace(instructions_text[i]);
+        char* line = strip_whitespace(instructions_text[i]);
 
-        size_t len = strlen(current_instruction);
-        if (!current_instruction || len == 0) {
-            continue;
-        }
+        size_t len = strlen(line);
+        if (!line || len == 0) continue;
         
-        if (len > 0 && current_instruction[len - 1] == ':') {
-            current_instruction[len - 1] = '\0';
-            printf("Rótulo encontrado: %s\n", current_instruction);
+        if (len > 0 && line[len - 1] == ':') {
+            line[len - 1] = '\0';
+            labels[current_label_index].title = strdup(line);
+            labels[current_label_index].mem_pos = current_instruction_index;
+            current_label_index++;
             continue;
         }
 
-        char* instruction_name = strtok(current_instruction, " \t");
+        char* instruction_name = strtok(line, " \t");
         char* operand_name = strtok(NULL, " \t");
 
         if (!operand_name) {
             printf("Erro: Instrução sem operando: %s\n", instruction_name);
-            free(result);
+            for (int j = 0; j < current_label_index; j++) {
+                free(labels[j].title);
+            }
+            free(labels);
+            free(instructions);
+            free(task_code_section);
             return NULL;
         }
 
@@ -82,36 +111,41 @@ Instruction* parse_instruction_section(char* instructions_text[], int count) {
 
         if (opcode < 0) {
             printf("Erro: Instrução desconhecida: %s\n", instruction_name);
-            free(result);
+            for (int j = 0; j < current_label_index; j++) {
+                free(labels[j].title);
+            }
+            free(labels);
+            free(instructions);
+            free(task_code_section);
             return NULL;
         }
         
-        memset(&result[current_instruction_index], 0, sizeof(Instruction));
+        memset(&instructions[current_instruction_index], 0, sizeof(Instruction));
 
-        result[current_instruction_index].fn = get_instruction_function(opcode);
-        result[current_instruction_index].operand = strdup(operand_name);
+        instructions[current_instruction_index].fn = get_instruction_function(opcode);
+        instructions[current_instruction_index].operand = strdup(operand_name);
 
         if (operand_name[0] == '#') {
-            result[current_instruction_index].type    = PARAM_INT;
+            instructions[current_instruction_index].type    = PARAM_INT;
         } else if (opcode == BRANY || opcode == BRPOS || opcode == BRZERO || opcode == BRNEG) {
-            result[current_instruction_index].type    = PARAM_LABEL;
+            instructions[current_instruction_index].type    = PARAM_LABEL;
         } else {
-            result[current_instruction_index].type    = PARAM_STRING;
+            instructions[current_instruction_index].type    = PARAM_STRING;
         }
 
         current_instruction_index++;
     }
 
     printf("\n===== Instruções Parseadas =====\n");
-    for (int i = 0; i < actual_instruction_count; i++) {
+    for (int i = 0; i < instruction_count; i++) {
         printf("Instrução %d:\n", i);
-        printf("  Opcode: %d\n", get_opcode_from_function(result[i].fn));
-        printf("  Operando: %s\n", result[i].operand);
+        printf("  Opcode: %d\n", get_opcode_from_function(instructions[i].fn));
+        printf("  Operando: %s\n", instructions[i].operand);
         
         printf("  Tipo: ");
-        switch(result[i].type) {
+        switch(instructions[i].type) {
             case PARAM_INT:
-                printf("Inteiro (#%s)\n", result[i].operand[0] == '#' ? result[i].operand + 1 : result[i].operand);
+                printf("Inteiro (#%s)\n", instructions[i].operand[0] == '#' ? instructions[i].operand + 1 : instructions[i].operand);
                 break;
             case PARAM_LABEL:
                 printf("Label (rótulo)\n");
@@ -125,6 +159,16 @@ Instruction* parse_instruction_section(char* instructions_text[], int count) {
         printf("\n");
     }
     printf("==============================\n\n");
-    
-    return result;
+
+    printf("\n===== Labels Parseados =====\n");
+    for (int i = 0; i < label_count; i++) {
+        printf("Label %d: %s (posição: %zu)\n", 
+               i, labels[i].title, labels[i].mem_pos);
+    }
+    printf("===========================\n\n");
+
+    task_code_section->instructions = instructions;
+    task_code_section->labels = labels;
+
+    return task_code_section;
 }

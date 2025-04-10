@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 
-#define MAX_TITLE_SIZE 256 // (2^8) chars + 1 null byte
 #define BAD_SYNTAX printf("Syntax formatting error\n");
 
 typedef struct TaskControlBlock TaskControlBlock;
@@ -23,12 +22,12 @@ typedef enum OPCode {
 } OPCode;
 
 typedef struct Label {
-    char title[MAX_TITLE_SIZE];
+    char* title;
     size_t mem_pos;
 } Label;
 
 typedef struct Variable {
-    char name[MAX_TITLE_SIZE];
+    char* name;
     int value;
 } Variable;
 
@@ -46,7 +45,12 @@ typedef struct Instruction {
     ParamType type;
 } Instruction;
 
+typedef struct TaskCodeSection {
+    Instruction* instructions;
+    Label* labels;
+} TaskCodeSection;
+
 TaskControlBlock* parse_program(const char* filename);
-Instruction* parse_instruction_section(char* instructions_text[], int count);
+TaskCodeSection* parse_instruction_section(char* instructions_text[], int count);
 
 #endif
