@@ -8,7 +8,7 @@
 
 typedef struct TaskControlBlock TaskControlBlock;
 
-typedef enum InstructionCode {
+typedef enum OPCode {
     ADD,
     SUB,
     MULT,
@@ -20,7 +20,7 @@ typedef enum InstructionCode {
     BRZERO,
     BRNEG,
     SYSCALL
-} TextType;
+} OPCode;
 
 typedef struct Label {
     char title[MAX_TITLE_SIZE];
