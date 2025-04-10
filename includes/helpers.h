@@ -18,5 +18,9 @@ void branch_helper(TaskControlBlock* tcb, Label* label, bool condition);
 
 char** tokenize_sections(char* buffer, char section_name[], int* line_count);
 char*  strip_whitespace(char* str);
+int    get_op_code_from_instruction_name(char* name);
+char*   to_lowercase(char* str);
+InstructionFn get_instruction_function(OPCode opcode);
+int get_opcode_from_function(InstructionFn fn);
 
 #endif

@@ -1,8 +1,10 @@
 #include "../includes/asm_compiler.h"
 #include "../includes/task.h"
 #include "../includes/helpers.h"
+#include "../includes/asm_wrapper.h"
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 /*
     ASM funcs helper functions
@@ -114,4 +116,98 @@ char* strip_whitespace(char* str) {
     }
     
     return str;
+}
+
+int get_op_code_from_instruction_name(char* name) {
+    if(strcmp(name, "add") == 0) {
+        return ADD;
+    }
+    if(strcmp(name, "sub") == 0) {
+        return SUB;
+    }
+    if(strcmp(name, "mult") == 0) {
+        return MULT;
+    }
+    if(strcmp(name, "div") == 0) {
+        return DIV;
+    }
+    if(strcmp(name, "load") == 0) {
+        return LOAD;
+    }
+    if(strcmp(name, "store") == 0) {
+        return STORE;
+    }
+    if(strcmp(name, "brany") == 0) {
+        return BRANY;
+    }
+    if(strcmp(name, "brpos") == 0) {
+        return BRPOS;
+    }
+    if(strcmp(name, "brzero") == 0) {
+        return BRZERO;
+    }
+    if(strcmp(name, "brneg") == 0) {
+        return BRNEG;
+    }
+    if(strcmp(name, "syscall") == 0) {
+        return SYSCALL;
+    }
+
+    return -1;
+}
+
+char* to_lowercase(char* str) {
+    if (!str) return NULL;
+    
+    char* p = str;
+    while (*p) {
+        *p = tolower((unsigned char)*p);
+        p++;
+    }
+    
+    return str;
+}
+
+InstructionFn get_instruction_function(OPCode opcode) {
+    switch (opcode) {
+        case ADD:
+            return increment_wrapper;
+        case SUB:
+            return decrement_wrapper;
+        case MULT:
+            return multiply_wrapper;
+        case DIV:
+            return divide_wrapper;
+        case STORE:
+            return store_wrapper;
+        case LOAD:
+            return load_wrapper;
+        case BRANY:
+            return brany_wrapper;
+        case BRPOS:
+            return brpos_wrapper;
+        case BRZERO:
+            return brzero_wrapper;
+        case BRNEG:
+            return brneg_wrapper;
+        case SYSCALL:
+            return syscall_wrapper;
+        default:
+            return NULL;
+    }
+}
+
+int get_opcode_from_function(InstructionFn fn) {
+    if (fn == get_instruction_function(ADD)) return ADD;
+    if (fn == get_instruction_function(SUB)) return SUB;
+    if (fn == get_instruction_function(MULT)) return MULT;
+    if (fn == get_instruction_function(DIV)) return DIV;
+    if (fn == get_instruction_function(LOAD)) return LOAD;
+    if (fn == get_instruction_function(STORE)) return STORE;
+    if (fn == get_instruction_function(BRANY)) return BRANY;
+    if (fn == get_instruction_function(BRPOS)) return BRPOS;
+    if (fn == get_instruction_function(BRZERO)) return BRZERO;
+    if (fn == get_instruction_function(BRNEG)) return BRNEG;
+    if (fn == get_instruction_function(SYSCALL)) return SYSCALL;
+    return -1;
 }
