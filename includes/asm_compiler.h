@@ -8,6 +8,20 @@
 
 typedef struct TaskControlBlock TaskControlBlock;
 
+typedef enum InstructionCode {
+    ADD,
+    SUB,
+    MULT,
+    DIV,
+    STORE,
+    LOAD,
+    BRANY,
+    BRPOS,
+    BRZERO,
+    BRNEG,
+    SYSCALL
+} TextType;
+
 typedef struct Label {
     char title[MAX_TITLE_SIZE];
     size_t mem_pos;
@@ -34,6 +48,5 @@ typedef struct Instruction {
 
 TaskControlBlock* parse_program(const char* filename);
 Instruction* parse_instructions(char* instructions_text[], int count);
-char** tokenize_sections(char* buffer, char section_name[], int* line_count);
 
 #endif
