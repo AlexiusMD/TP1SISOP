@@ -13,6 +13,6 @@ typedef struct PriorityQueue {
 void enqueue(TaskControlBlock* tcb, PriorityQueue* queue);
 void dequeue(TaskControlBlock* tcb, PriorityQueue* queue);
 void priority_queue_init(int initial_capacity);
-void priority_queue_free();
+void priority_queue_free(PriorityQueue* queue);
 
 #endif

@@ -30,4 +30,5 @@ typedef struct TaskControlBlock {
 } TaskControlBlock;
 
 TaskControlBlock* instantiate_tcb(Instruction* instructions, Label* labels, Variable* variables);
+void  free_tcb(TaskControlBlock* tcb);
 #endif
