@@ -42,7 +42,7 @@ typedef enum {
 
 typedef struct Instruction {
     InstructionFn fn;
-    void* operand;
+    char* operand;
     ParamType type;
 } Instruction;
 
