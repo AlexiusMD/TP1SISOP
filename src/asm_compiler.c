@@ -14,10 +14,10 @@ TaskControlBlock* parse_program(const char* filename) {
 
     TaskCodeSection* task_instruction_section = parse_instruction_section(code_section,  count);
 
-    free(task_instruction_section);
-
     count = 0;
     char** data_section = tokenize_sections(buffer, "data", &count);
+
+    TaskDataSection* task_data_section = parse_data_section(data_section, count);
 
     TaskControlBlock* tcb = (TaskControlBlock*) malloc(sizeof(TaskControlBlock));
 
@@ -26,6 +26,8 @@ TaskControlBlock* parse_program(const char* filename) {
         free(buffer);
         free(code_section);
         free(data_section);
+        free(task_instruction_section);
+        free(task_data_section);
         return NULL;
     }
 
@@ -173,4 +175,63 @@ TaskCodeSection* parse_instruction_section(char* instructions_text[], int count)
     task_code_section->label_count = label_count;
 
     return task_code_section;
+}
+
+TaskDataSection* parse_data_section(char* data_text[], int count) {
+    int variable_count = 0;
+
+    for(int i = 0; i < count; i++) {
+        char* line = strip_whitespace(data_text[i]);
+        if (!line || strlen(line) == 0) continue;
+        variable_count++;
+    }
+
+    TaskDataSection* task_data_section = (TaskDataSection*) malloc(sizeof(TaskDataSection));
+    if(!task_data_section) {
+        printf("Erro de alocação de memória - Task Data Section struct");
+        return NULL;
+    }
+
+    Variable* variables = (Variable*) malloc(variable_count * sizeof(Variable));
+    if(!variables) {
+        printf("Erro de alocação de memória - Task Data Section struct");
+        free(task_data_section);
+        return NULL;
+    }
+
+    for(int i = 0; i < variable_count; i++) {
+        char* line = strip_whitespace(data_text[i]);
+
+        size_t len = strlen(line);
+        if (!line || len == 0) continue;
+
+        char* variable_name = strtok(line, " \t");
+        char* value = strtok(NULL, " \t");
+
+        if (!value) {
+            printf("Erro: Instrução sem operando: %s\n", variable_name);
+            free(variables);
+            free(task_data_section);
+            return NULL;
+        }
+
+        memset(&variables[i], 0, sizeof(Variable));
+
+        variables[i].name = variable_name;
+        variables[i].value = atoi(value);
+    }
+
+    printf("\n===== Variáveis Parseadas =====\n");
+    for (int i = 0; i < variable_count; i++) {
+        printf("Variável %d:\n", i);
+        printf("  Nome: %s\n", variables[i].name);
+        printf("  Operando: %d\n", variables[i].value);
+        printf("\n");
+    }
+    printf("==============================\n\n");
+
+    task_data_section->variables = variables;
+    task_data_section->variable_count = variable_count;
+
+    return task_data_section;
 }
