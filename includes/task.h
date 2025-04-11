@@ -21,14 +21,17 @@ typedef struct TaskControlBlock {
     int32_t acc;
     size_t program_counter;
     Instruction* instructions;
-    Label* lables;
+    size_t instruction_count;
+    Label* labels;
+    size_t label_count;
     Variable* data;
-    int8_t state;
+    size_t data_count;
+    TaskStates state;
     int8_t priority;
     int8_t deadline;
     int8_t remaining_blocking_time;
 } TaskControlBlock;
 
-TaskControlBlock* instantiate_tcb(Instruction* instructions, Label* labels, Variable* variables);
-void  free_tcb(TaskControlBlock* tcb);
+TaskControlBlock* instantiate_tcb(Instruction* instructions, Label* labels, Variable* variables, size_t pid);
+void free_tcb(TaskControlBlock* tcb);
 #endif

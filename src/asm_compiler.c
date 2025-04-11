@@ -169,6 +169,8 @@ TaskCodeSection* parse_instruction_section(char* instructions_text[], int count)
 
     task_code_section->instructions = instructions;
     task_code_section->labels = labels;
+    task_code_section->instruction_count = instruction_count;
+    task_code_section->label_count = label_count;
 
     return task_code_section;
 }

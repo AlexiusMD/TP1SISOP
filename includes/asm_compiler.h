@@ -47,7 +47,9 @@ typedef struct Instruction {
 
 typedef struct TaskCodeSection {
     Instruction* instructions;
+    size_t instruction_count;
     Label* labels;
+    size_t label_count;
 } TaskCodeSection;
 
 TaskControlBlock* parse_program(const char* filename);
