@@ -19,8 +19,7 @@ TaskControlBlock* parse_program(const char* filename) {
 
     TaskDataSection* task_data_section = parse_data_section(data_section, count);
 
-    TaskControlBlock* tcb = (TaskControlBlock*) malloc(sizeof(TaskControlBlock));
-
+    TaskControlBlock* tcb = instantiate_tcb(task_instruction_section, task_data_section);
     if (!tcb) {
         printf("Memory allocation error - TaskControlBlock\n");
         free(buffer);
@@ -34,6 +33,10 @@ TaskControlBlock* parse_program(const char* filename) {
     free(buffer);
     free(code_section);
     free(data_section);
+    free(task_instruction_section);
+    free(task_data_section);
+
+    print_tcb(tcb);
 
     return tcb;
 }
@@ -138,36 +141,39 @@ TaskCodeSection* parse_instruction_section(char* instructions_text[], int count)
         current_instruction_index++;
     }
 
-    printf("\n===== Instruções Parseadas =====\n");
-    for (int i = 0; i < instruction_count; i++) {
-        printf("Instrução %d:\n", i);
-        printf("  Opcode: %d\n", get_opcode_from_function(instructions[i].fn));
-        printf("  Operando: %s\n", instructions[i].operand);
+    /*
+        DEBUG Instruction and Label Printing
+    */
+    // printf("\n===== Instruções Parseadas =====\n");
+    // for (int i = 0; i < instruction_count; i++) {
+    //     printf("Instrução %d:\n", i);
+    //     printf("  Opcode: %d\n", get_opcode_from_function(instructions[i].fn));
+    //     printf("  Operando: %s\n", instructions[i].operand);
         
-        printf("  Tipo: ");
-        switch(instructions[i].type) {
-            case PARAM_INT:
-                printf("Inteiro (#%s)\n", instructions[i].operand[0] == '#' ? instructions[i].operand + 1 : instructions[i].operand);
-                break;
-            case PARAM_LABEL:
-                printf("Label (rótulo)\n");
-                break;
-            case PARAM_STRING:
-                printf("String (variável)\n");
-                break;
-            default:
-                printf("Desconhecido\n");
-        }
-        printf("\n");
-    }
-    printf("==============================\n\n");
+    //     printf("  Tipo: ");
+    //     switch(instructions[i].type) {
+    //         case PARAM_INT:
+    //             printf("Inteiro (#%s)\n", instructions[i].operand[0] == '#' ? instructions[i].operand + 1 : instructions[i].operand);
+    //             break;
+    //         case PARAM_LABEL:
+    //             printf("Label (rótulo)\n");
+    //             break;
+    //         case PARAM_STRING:
+    //             printf("String (variável)\n");
+    //             break;
+    //         default:
+    //             printf("Desconhecido\n");
+    //     }
+    //     printf("\n");
+    // }
+    // printf("==============================\n\n");
 
-    printf("\n===== Labels Parseados =====\n");
-    for (int i = 0; i < label_count; i++) {
-        printf("Label %d: %s (posição: %zu)\n", 
-               i, labels[i].title, labels[i].mem_pos);
-    }
-    printf("===========================\n\n");
+    // printf("\n===== Labels Parseados =====\n");
+    // for (int i = 0; i < label_count; i++) {
+    //     printf("Label %d: %s (posição: %zu)\n", 
+    //            i, labels[i].title, labels[i].mem_pos);
+    // }
+    // printf("===========================\n\n");
 
     task_code_section->instructions = instructions;
     task_code_section->labels = labels;
@@ -221,14 +227,17 @@ TaskDataSection* parse_data_section(char* data_text[], int count) {
         variables[i].value = atoi(value);
     }
 
-    printf("\n===== Variáveis Parseadas =====\n");
-    for (int i = 0; i < variable_count; i++) {
-        printf("Variável %d:\n", i);
-        printf("  Nome: %s\n", variables[i].name);
-        printf("  Operando: %d\n", variables[i].value);
-        printf("\n");
-    }
-    printf("==============================\n\n");
+    /*
+        DEBUG Var Printing
+    */
+    // printf("\n===== Variáveis Parseadas =====\n");
+    // for (int i = 0; i < variable_count; i++) {
+    //     printf("Variável %d:\n", i);
+    //     printf("  Nome: %s\n", variables[i].name);
+    //     printf("  Operando: %d\n", variables[i].value);
+    //     printf("\n");
+    // }
+    // printf("==============================\n\n");
 
     task_data_section->variables = variables;
     task_data_section->variable_count = variable_count;
