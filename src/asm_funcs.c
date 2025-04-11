@@ -3,6 +3,7 @@
 #include "../includes/task.h"
 #include "../includes/helpers.h"
 #include <string.h>
+#include <stdio.h>
 
 /*
     Arithmetic operations (Operate on the accumulator)
@@ -79,7 +80,7 @@ void syscall(TaskControlBlock* tcb, int index) {
 
     if (index == 2) {
         printf("Syscall 2 -> awaiting for int input\n");
-        scanf("%d", tcb->acc);
+        scanf("%d", &tcb->acc);
     }
 
     // We set the state to ready because its state is being previously
