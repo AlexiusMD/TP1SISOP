@@ -66,7 +66,24 @@ void brneg     (TaskControlBlock* tcb, Label* label) {
 /*
     System call
 */
-void syscall    (TaskControlBlock* tcb, int index);
+void syscall(TaskControlBlock* tcb, int index) {
+    if (index == 0) {
+        tcb->state = TERMINATED;
+        return;
+    }
+
+    if (index == 1) {
+        tcb->state = WAITING;
+        printf("%d", tcb->acc);
+    }
+
+    if (index == 2) {
+        tcb->state = WAITING;
+        printf("Syscall 2 -> awaiting for int input\n");
+        scanf("%d", tcb->acc);
+    }
+}
+
 
 
 /*
