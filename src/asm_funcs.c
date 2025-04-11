@@ -69,6 +69,7 @@ void brneg(TaskControlBlock* tcb, Label* label) {
 void syscall(TaskControlBlock* tcb, int index) {
     if (index == 0) {
         tcb->state = TERMINATED;
+        free_tcb(tcb);
         return;
     }
 
