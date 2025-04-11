@@ -6,4 +6,6 @@ typedef struct TaskControlBlock TaskControlBlock;
 
 void scheduler_init(PriorityQueue* queue, PriorityQueue* waiting_queue);
 
+void update_blocking_tasks(PriorityQueue* waiting_queue, PriorityQueue* queue);
+
 #endif

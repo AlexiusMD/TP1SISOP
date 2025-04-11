@@ -25,5 +25,25 @@ void scheduler_init(PriorityQueue *queue, PriorityQueue *waiting_queue)
             tcb->state = WAITING;
             enqueue(tcb, waiting_queue);
         }
+
+        update_blocking_tasks(waiting_queue, queue);
+    }
+}
+
+void update_blocking_tasks(PriorityQueue* waiting_queue, PriorityQueue* queue) {
+    if (waiting_queue->size == 0) {
+        return;
+    }
+
+    for (int i = 0; i < waiting_queue->size; i++) {
+        TaskControlBlock* tcb = waiting_queue->queue[i];
+        if (tcb->remaining_blocking_time > 0) {
+            tcb->remaining_blocking_time--;
+        }
+        if (tcb->remaining_blocking_time == 0) {
+            tcb->state = READY;
+            enqueue(tcb, queue);
+            dequeue(tcb, waiting_queue);
+        }
     }
 }
