@@ -95,8 +95,8 @@ void print_tcb(TaskControlBlock* tcb) {
     printf("║ %-15s: %-31d ║\n", "Tempo bloqueio", tcb->remaining_blocking_time);
     printf("╠══════════════════════════════════════════════════╣\n");
     printf("║ %-15s: %-33zu ║\n", "# Instruções", tcb->instruction_count);
-    printf("║ %-15s: %-31zu ║\n", "# Labels", tcb->label_count);
-    printf("║ %-15s: %-32zu ║\n", "# Variáveis", tcb->data_count);
+    printf("║ %-13s: %-33zu ║\n", "# Labels", tcb->label_count);
+    printf("║ %-14s: %-33zu ║\n", "# Variáveis", tcb->data_count);
     printf("╚══════════════════════════════════════════════════╝\n");
 }
 
