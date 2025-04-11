@@ -32,6 +32,8 @@ typedef struct TaskControlBlock {
     int8_t remaining_blocking_time;
 } TaskControlBlock;
 
+int calculate_deadline(Instruction* instructions, size_t instruction_count);
+
 TaskControlBlock* instantiate_tcb(Instruction* instructions, Label* labels, Variable* variables, size_t pid);
 void free_tcb(TaskControlBlock* tcb);
 #endif

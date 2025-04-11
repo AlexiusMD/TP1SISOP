@@ -14,12 +14,27 @@ TaskControlBlock* instantiate_tcb(Instruction* instructions, Label* labels, Vari
     tcb->labels                  = labels;
     tcb->data                    = variables;
     tcb->state                   = NEW;
-    tcb->deadline                = 0;
+    tcb->deadline                = calculate_deadline(instructions, tcb->instruction_count); // TODO: receive instruction_count as param
     tcb->acc                     = 0;
     tcb->priority                = 0;
     tcb->remaining_blocking_time = 0;
 
     return tcb;
+}
+
+int calculate_deadline(Instruction* instructions, size_t instruction_count) {
+    int deadline = 0;
+
+    for (size_t i = 0; i < instruction_count; i++) {
+        if (instructions[i].type == SYSCALL) {
+            // We assume the worst computational time for a syscall, which is 3 cycles
+            deadline += 3;
+        }
+
+        deadline++;
+    }
+    
+    return deadline;
 }
 
 void free_tcb(TaskControlBlock* tcb) {
