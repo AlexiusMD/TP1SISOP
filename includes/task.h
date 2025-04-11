@@ -15,6 +15,8 @@ typedef enum TaskStates {
 typedef struct Label Label;
 typedef struct Variable Variable;
 typedef struct Instruction Instruction;
+typedef struct TaskCodeSection TaskCodeSection;
+typedef struct TaskDataSection TaskDataSection;
 
 typedef struct TaskControlBlock {
     size_t pid;
@@ -34,6 +36,8 @@ typedef struct TaskControlBlock {
 
 int calculate_deadline(Instruction* instructions, size_t instruction_count);
 
-TaskControlBlock* instantiate_tcb(Instruction* instructions, Label* labels, Variable* variables, size_t pid);
+TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSection* task_data_section);
 void free_tcb(TaskControlBlock* tcb);
+size_t get_next_pid();
+void print_tcb(TaskControlBlock* tcb);
 #endif
