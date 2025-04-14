@@ -14,7 +14,7 @@ void enqueue(TaskControlBlock* tcb, PriorityQueue* queue) {
     }
     else {
         int i;
-        for (i = queue->size - 1; (i >= 0 && queue->queue[i]->priority < tcb->priority); i--) {
+        for (i = queue->size - 1; (i >= 0 && queue->queue[i]->absolute_deadline < tcb->absolute_deadline); i--) {
             queue->queue[i + 1] = queue->queue[i];
         }
         queue->queue[i + 1] = tcb;

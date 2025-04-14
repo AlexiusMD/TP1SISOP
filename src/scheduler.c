@@ -15,7 +15,7 @@ void scheduler_init(PriorityQueue *queue, PriorityQueue *waiting_queue)
 
         tcb->state = RUNNING;
         tcb->program_counter++;
-        tcb->deadline--;
+        tcb->absolute_deadline--;
         // Idk if the operand will throw an error
         tcb->instructions->fn(tcb, tcb->instructions->operand);
 

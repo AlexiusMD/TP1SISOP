@@ -5,8 +5,9 @@
 
 static int PID = 0;
 
-TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSection* task_data_section) {
+TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSection* task_data_section, int arrival_time, int period) {
     TaskControlBlock* tcb = (TaskControlBlock*) malloc(sizeof(TaskControlBlock));
+
     if (!tcb) {
         printf("Erro na alocação da memória - Instanciamento do TCB\n");
         return NULL;
@@ -20,29 +21,23 @@ TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSe
     tcb->data                    = task_data_section->variables;
     tcb->data_count              = task_data_section->variable_count;
     tcb->state                   = NEW;
-    tcb->deadline                = calculate_deadline(task_code_section->instructions, task_code_section->instruction_count);
+
+    // EDF config
+    tcb->arrival_time            = arrival_time;
+    tcb->computation_time        = task_code_section->instruction_count;
+    tcb->period                  = period;
+    tcb->next_activation_time    = arrival_time;
+    tcb->absolute_deadline       = arrival_time + period;
+    tcb->remaining_time          = tcb->computation_time;
+
+    // Execução
     tcb->program_counter         = 0;
     tcb->acc                     = 0;
-    tcb->priority                = 0;
     tcb->remaining_blocking_time = 0;
 
     return tcb;
 }
 
-int calculate_deadline(Instruction* instructions, size_t instruction_count) {
-    int deadline = 0;
-
-    for (size_t i = 0; i < instruction_count; i++) {
-        if (get_opcode_from_function(instructions[i].fn) == SYSCALL) {
-            // We assume the worst computational time for a syscall, which is 3 cycles
-            deadline += 3;
-        }
-
-        deadline++;
-    }
-    
-    return deadline;
-}
 
 void free_tcb(TaskControlBlock* tcb) {
     if (tcb->instructions) {
@@ -87,12 +82,13 @@ void print_tcb(TaskControlBlock* tcb) {
 
     const char* states[] = {"NOVO", "EXECUTANDO", "ESPERANDO", "PRONTO", "TERMINADO"};
 
-    printf("║ %-15s: %-31s ║\n", "Estado", states[tcb->state]);
-    printf("║ %-15s: %-31zu ║\n", "PC", tcb->program_counter);
-    printf("║ %-15s: %-31d ║\n", "Acumulador", tcb->acc);
-    printf("║ %-15s: %-31d ║\n", "Prioridade", tcb->priority);
-    printf("║ %-15s: %-31d ║\n", "Deadline", tcb->deadline);
-    printf("║ %-15s: %-31d ║\n", "Tempo bloqueio", tcb->remaining_blocking_time);
+    printf("║ %-18s: %-28s ║\n", "Estado", states[tcb->state]);
+    printf("║ %-18s: %-28zu ║\n", "PC", tcb->program_counter);
+    printf("║ %-18s: %-28d ║\n", "Acumulador", tcb->acc);
+    printf("║ %-18s: %-28d ║\n", "Chegada", tcb->arrival_time);
+    printf("║ %-18s: %-28d ║\n", "Deadline absoluto", tcb->absolute_deadline);
+    printf("║ %-19s: %-28d ║\n", "Período", tcb->absolute_deadline);
+    printf("║ %-18s: %-28d ║\n", "Tempo bloqueio", tcb->remaining_blocking_time);
     printf("╠══════════════════════════════════════════════════╣\n");
     printf("║ %-15s: %-33zu ║\n", "# Instruções", tcb->instruction_count);
     printf("║ %-13s: %-33zu ║\n", "# Labels", tcb->label_count);
