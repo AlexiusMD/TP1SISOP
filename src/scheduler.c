@@ -10,8 +10,8 @@ void scheduler_init(PriorityQueue *queue, PriorityQueue *waiting_queue)
 
     while (queue->size > 0)
     {
-        TaskControlBlock *tcb = queue->queue[0];
-        dequeue(tcb, queue);
+        TaskControlBlock *tcb = queue->heap[0];
+        dequeue(queue);
 
         tcb->state = RUNNING;
         tcb->program_counter++;
@@ -36,14 +36,14 @@ void update_blocking_tasks(PriorityQueue* waiting_queue, PriorityQueue* queue) {
     }
 
     for (int i = 0; i < waiting_queue->size; i++) {
-        TaskControlBlock* tcb = waiting_queue->queue[i];
+        TaskControlBlock* tcb = waiting_queue->heap[i];
         if (tcb->remaining_blocking_time > 0) {
             tcb->remaining_blocking_time--;
         }
         if (tcb->remaining_blocking_time == 0) {
             tcb->state = READY;
             enqueue(tcb, queue);
-            dequeue(tcb, waiting_queue);
+            dequeue(waiting_queue);
         }
     }
 }

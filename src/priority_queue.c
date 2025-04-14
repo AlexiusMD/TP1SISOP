@@ -3,46 +3,91 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void enqueue(TaskControlBlock* tcb, PriorityQueue* queue) {
-    if (queue->size == queue->capacity) {
-        printf("Queue is full, cannot enqueue task.\n");
-        return;
-    }
-    
-    if (queue->size == 0){
-        queue->queue[0] = tcb;
-    }
-    else {
-        int i;
-        for (i = queue->size - 1; (i >= 0 && queue->queue[i]->absolute_deadline < tcb->absolute_deadline); i--) {
-            queue->queue[i + 1] = queue->queue[i];
-        }
-        queue->queue[i + 1] = tcb;
+int parent(int i) {
+    return (i - 1) / 2;
+}
+
+int left(int i) {
+    return 2 * i + 1;
+}
+
+int right(int i) {
+    return 2 * i + 2;
+}
+
+void swap(TaskControlBlock** a, TaskControlBlock** b) {
+    TaskControlBlock* temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+PriorityQueue* priority_queue_init(int initial_capacity) {
+    PriorityQueue* queue = malloc(sizeof(PriorityQueue));
+    if (!queue) return NULL;
+
+    queue->heap = malloc(sizeof(TaskControlBlock*) * initial_capacity);
+    if (!queue->heap) {
+        free(queue);
+        return NULL;
     }
 
+    queue->size = 0;
+    queue->capacity = initial_capacity;
+    return queue;
+}
+
+void resize_queue(PriorityQueue* queue) {
+    queue->capacity *= 2;
+    queue->heap = realloc(queue->heap, sizeof(TaskControlBlock*) * queue->capacity);
+    if (!queue->heap) {
+        fprintf(stderr, "Erro: realloc falhou\n");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void heapify_up(PriorityQueue* queue, int index) {
+    while (index > 0 && queue->heap[parent(index)]->absolute_deadline > queue->heap[index]->absolute_deadline) {
+        swap(&queue->heap[index], &queue->heap[parent(index)]);
+        index = parent(index);
+    }
+}
+
+void heapify_down(PriorityQueue* queue, int index) {
+    int smallest = index;
+    int l = left(index);
+    int r = right(index);
+
+    if (l < queue->size && queue->heap[l]->absolute_deadline < queue->heap[smallest]->absolute_deadline)
+        smallest = l;
+    if (r < queue->size && queue->heap[r]->absolute_deadline < queue->heap[smallest]->absolute_deadline)
+        smallest = r;
+
+    if (smallest != index) {
+        swap(&queue->heap[index], &queue->heap[smallest]);
+        heapify_down(queue, smallest);
+    }
+}
+
+void enqueue(TaskControlBlock* tcb, PriorityQueue* queue) {
+    if (queue->size >= queue->capacity)
+        resize_queue(queue);
+
+    queue->heap[queue->size] = tcb;
+    heapify_up(queue, queue->size);
     queue->size++;
 }
 
-void dequeue(TaskControlBlock* tcb, PriorityQueue* queue) {
-    if (queue->size == 0) {
-        printf("Queue is empty, cannot dequeue task.\n");
-        return;
-    }
-    
-    tcb = queue->queue[0];
-    for (int i = 1; i < queue->size; i++) {
-        queue->queue[i - 1] = queue->queue[i];
-    }
-    
-    queue->size--;
-}
+void dequeue(PriorityQueue* queue) {
+    if (queue->size == 0) return;
 
-void priority_queue_init(int initial_capacity) {
-    PriorityQueue* queue = (PriorityQueue*)malloc(sizeof(PriorityQueue));
-    queue->size = 0;
-    queue->capacity = initial_capacity;
+    queue->heap[0] = queue->heap[queue->size - 1];
+    queue->size--;
+    heapify_down(queue, 0);
 }
 
 void priority_queue_free(PriorityQueue* queue) {
-    free(queue);
+    if (queue) {
+        free(queue->heap);
+        free(queue);
+    }
 }
