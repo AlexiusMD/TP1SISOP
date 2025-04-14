@@ -31,3 +31,7 @@ clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
 vpath %.h $(INC_DIR)
+
+.PHONY: run
+run:
+	./bin/main
