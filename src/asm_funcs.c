@@ -28,8 +28,8 @@ void load(TaskControlBlock* tcb, char* operand) {
     for (size_t i = 0; i < tcb->data_count; i++) {
         Variable *var = &tcb->data[i];
 
-        if (strcmp(var->name, operand)) {
-            tcb->acc = var->value;
+        if (strcmp(var->name, operand) == 0) {
+            tcb->acc = var->value; 
             return;
         }
     }
@@ -38,7 +38,7 @@ void store(TaskControlBlock* tcb, char* operand) {
     for (size_t i = 0; i < tcb->data_count; i++) {
         Variable *var = &tcb->data[i];
 
-        if (strcmp(var->name, operand)) {
+        if (strcmp(var->name, operand) == 0) {
             var->value = tcb->acc;
             return;
         }

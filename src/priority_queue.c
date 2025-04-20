@@ -91,3 +91,9 @@ void priority_queue_free(PriorityQueue* queue) {
         free(queue);
     }
 }
+
+void print_queue(PriorityQueue* queue) {
+    for (int i = 0; i < queue->size; i++) {
+        printf("Task PID: %zu, Deadline: %d\n", queue->heap[i]->pid, queue->heap[i]->absolute_deadline);
+    }
+}

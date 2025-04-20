@@ -1,5 +1,7 @@
 #include "../includes/asm_compiler.h"
 #include <stdio.h>
+#include "../includes/scheduler.h"
+#include "../includes/priority_queue.h"
 
 void printMenuOptions();
 void getArrivalAndPeriod(int* arrival_time, int* period);
@@ -22,6 +24,8 @@ void CLIMenu() {
     int choice = 0;
     int arrival_time = 0;
     int period = 0;
+    PriorityQueue* queue = priority_queue_init(10);
+    PriorityQueue* waiting_queue = priority_queue_init(10);
 
     while(1) {
         printMenuOptions();
@@ -30,13 +34,16 @@ void CLIMenu() {
         switch (choice) {
             case 1:
                 getArrivalAndPeriod(&arrival_time, &period);
-                create_task("programs/prog1.txt", arrival_time, period);
+                TaskControlBlock* tcb = create_task("programs/prog1.txt", arrival_time, period);
+                enqueue(tcb, queue);
                 break;
             case 2:
                 getArrivalAndPeriod(&arrival_time, &period);
-                create_task("programs/prog2.txt", arrival_time, period);
+                TaskControlBlock* tcb2 = create_task("programs/prog2.txt", arrival_time, period);
+                enqueue(tcb2, queue);
                 break;
             case 3:
+                scheduler_init(queue, waiting_queue);
                 return;
             default:
                 printf("\nEscolha uma opção válida do menu!\n\n");

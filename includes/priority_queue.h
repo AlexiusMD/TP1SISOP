@@ -18,6 +18,7 @@ void dequeue(PriorityQueue* queue);
 PriorityQueue* priority_queue_init(int initial_capacity);
 void priority_queue_free(PriorityQueue* queue);
 void resize_queue(PriorityQueue* queue);
+void print_queue(PriorityQueue* queue);
 
 /*
     Heap helpers
