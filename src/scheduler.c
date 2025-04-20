@@ -73,17 +73,19 @@ void update_blocking_tasks(PriorityQueue* waiting_queue, PriorityQueue* queue) {
 void run_instruction(TaskControlBlock* tcb) {
     ParamType instruction_param = tcb->instructions[tcb->program_counter].type;
     int program_counter = tcb->program_counter;
+    int literal_integer;
+    const char* label;
 
     switch (instruction_param) {
         case PARAM_INT:
-            int literal_integer = atoi(tcb->instructions[program_counter].operand);
+            literal_integer = atoi(tcb->instructions[program_counter].operand);
             tcb->instructions[program_counter].fn(tcb, &literal_integer); 
             break;
         case PARAM_STRING:
             tcb->instructions[program_counter].fn(tcb, tcb->instructions[program_counter].operand);
             break;
         case PARAM_LABEL:
-            const char* label = tcb->instructions[program_counter].operand;
+            label = tcb->instructions[program_counter].operand;
             for (int i = 0; i < tcb->label_count; i++) {
                 if (strcmp(tcb->labels[i].title, label) == 0) {
                     tcb->instructions[program_counter].fn(tcb, &tcb->labels[i].mem_pos);
