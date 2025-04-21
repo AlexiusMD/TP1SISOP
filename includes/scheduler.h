@@ -3,17 +3,14 @@
 
 typedef struct PriorityQueue PriorityQueue;
 typedef struct TaskControlBlock TaskControlBlock;
+typedef unsigned long size_t;
 
-void scheduler_init(PriorityQueue* queue, PriorityQueue* waiting_queue);
-
-void update_blocking_tasks(PriorityQueue* waiting_queue, PriorityQueue* queue);
-
+void scheduler_init(PriorityQueue* ready_queue, PriorityQueue* waiting_queue, PriorityQueue* arriving_queue);
+void handle_arriving_queue(PriorityQueue* ready_queue, PriorityQueue* arriving_queue, size_t current_time);
+void handle_blocked_queue(PriorityQueue* ready_queue, PriorityQueue* waiting_queue);
+void handle_ready_queue(PriorityQueue* ready_queue, TaskControlBlock** running_task_ptr);
+void run_current_task(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue);
+void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue);
 void run_instruction(TaskControlBlock* tcb);
-
-void preempt_priority_handler(TaskControlBlock* current_running_task, PriorityQueue* ready_queue);
-
-void handle_current_task_not_null(TaskControlBlock* current_running_task);
-
-void handle_syscall_instruction(TaskControlBlock* current_running_task, PriorityQueue* waiting_queue);
 
 #endif
