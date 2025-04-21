@@ -12,5 +12,6 @@ void handle_ready_queue(PriorityQueue* ready_queue, TaskControlBlock** running_t
 void run_current_task(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue);
 void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue);
 void run_instruction(TaskControlBlock* tcb);
+void print_queue_states(PriorityQueue* ready_queue, PriorityQueue* waiting_queue, PriorityQueue* arriving_queue);
 
 #endif

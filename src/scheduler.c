@@ -13,6 +13,7 @@ void scheduler_init(PriorityQueue* ready_queue, PriorityQueue* waiting_queue, Pr
     TaskControlBlock* running_task = NULL;
 
     while (ready_queue->size > 0 || waiting_queue->size > 0 || arriving_queue->size > 0 || running_task != NULL) {
+        print_queue_states(ready_queue, waiting_queue, arriving_queue);
         handle_arriving_queue(ready_queue, arriving_queue, current_time);
         handle_blocked_queue(ready_queue, waiting_queue);
         handle_ready_queue(ready_queue, &running_task);
@@ -24,6 +25,21 @@ void scheduler_init(PriorityQueue* ready_queue, PriorityQueue* waiting_queue, Pr
     }
 
     printf("\nTodas as tarefas foram concluídas no tempo %zu\n", current_time);
+}
+
+void print_queue_states(PriorityQueue* ready_queue, PriorityQueue* waiting_queue, PriorityQueue* arriving_queue) {
+    printf("\n══════════════════════════════════════════════════\n");
+    printf("Estado das filas:");
+    printf("\n══════════════════════════════════════════════════\n");
+    printf("Fila de Prontos: ");
+    print_queue(ready_queue);
+    printf("\n══════════════════════════════════════════════════\n");
+    printf("Fila de Espera: ");
+    print_queue(waiting_queue);
+    printf("\n══════════════════════════════════════════════════\n");
+    printf("Fila de Chegada: ");
+    print_queue(arriving_queue);
+    printf("\n══════════════════════════════════════════════════\n");
 }
 
 void handle_arriving_queue(PriorityQueue* ready_queue, PriorityQueue* arriving_queue, size_t current_time) {
@@ -77,6 +93,7 @@ void handle_ready_queue(PriorityQueue* ready_queue, TaskControlBlock** running_t
         running_task = dequeue(ready_queue);
         running_task->state = RUNNING;
         printf("Tarefa %zu selecionada (deadline: %d)\n", running_task->pid, running_task->absolute_deadline);
+        *running_task_ptr = running_task;
     }
 }
 
@@ -91,7 +108,7 @@ void run_current_task(TaskControlBlock** current_task_ptr, PriorityQueue* waitin
     current_task->program_counter++;
     printf("Tarefa %zu executou instrução %zu\n", current_task->pid, current_task->program_counter - 1);
 
-    handle_syscalls(&current_task, waiting_queue);
+    handle_syscalls(current_task_ptr, waiting_queue);
 }
 
 void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue) {
@@ -101,6 +118,7 @@ void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting
         printf("Tarefa %zu completou todas as instruções\n", current_task->pid);
         current_task->state = TERMINATED;
         *current_task_ptr = NULL;
+        return;
     }
 
     if (current_task != NULL && current_task->instructions[current_task->program_counter].fn != get_instruction_function(SYSCALL)) {
