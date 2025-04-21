@@ -5,6 +5,7 @@
 #include <stdint.h>
 
 typedef enum TaskStates {
+    NEW,
     RUNNING,
     WAITING,
     READY,
