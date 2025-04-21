@@ -3,10 +3,13 @@
 
 typedef struct TaskControlBlock TaskControlBlock;
 
+typedef int (*CompareFn)(TaskControlBlock*, TaskControlBlock*);
+
 typedef struct PriorityQueue {
     TaskControlBlock** heap;
     int size;
     int capacity;
+    CompareFn compare;
 } PriorityQueue;
 
 /*
@@ -15,11 +18,14 @@ typedef struct PriorityQueue {
 
 void enqueue(TaskControlBlock* tcb, PriorityQueue* queue);
 TaskControlBlock* dequeue(PriorityQueue* queue);
-PriorityQueue* priority_queue_init(int initial_capacity);
+PriorityQueue* priority_queue_init(int initial_capacity, CompareFn compare);
 void priority_queue_free(PriorityQueue* queue);
 void resize_queue(PriorityQueue* queue);
 void print_queue(PriorityQueue* queue);
 TaskControlBlock* peek(PriorityQueue* queue);
+
+int compare_by_deadline(TaskControlBlock* a, TaskControlBlock* b);
+int compare_by_arrival(TaskControlBlock* a, TaskControlBlock* b);
 
 /*
     Heap helpers

@@ -21,7 +21,15 @@ void swap(TaskControlBlock** a, TaskControlBlock** b) {
     *b = temp;
 }
 
-PriorityQueue* priority_queue_init(int initial_capacity) {
+int compare_by_deadline(TaskControlBlock* a, TaskControlBlock* b) {
+    return a->absolute_deadline - b->absolute_deadline;
+}
+
+int compare_by_arrival(TaskControlBlock* a, TaskControlBlock* b) {
+    return a->arrival_time - b->arrival_time;
+}
+
+PriorityQueue* priority_queue_init(int initial_capacity, CompareFn compare) {
     PriorityQueue* queue = malloc(sizeof(PriorityQueue));
     if (!queue) return NULL;
 
@@ -33,6 +41,7 @@ PriorityQueue* priority_queue_init(int initial_capacity) {
 
     queue->size = 0;
     queue->capacity = initial_capacity;
+    queue->compare = compare;
     return queue;
 }
 
@@ -46,7 +55,7 @@ void resize_queue(PriorityQueue* queue) {
 }
 
 void heapify_up(PriorityQueue* queue, int index) {
-    while (index > 0 && queue->heap[parent(index)]->absolute_deadline > queue->heap[index]->absolute_deadline) {
+    while (index > 0 && queue->compare(queue->heap[index], queue->heap[parent(index)]) < 0) {
         swap(&queue->heap[index], &queue->heap[parent(index)]);
         index = parent(index);
     }
@@ -57,9 +66,11 @@ void heapify_down(PriorityQueue* queue, int index) {
     int l = left(index);
     int r = right(index);
 
-    if (l < queue->size && queue->heap[l]->absolute_deadline < queue->heap[smallest]->absolute_deadline)
+    if (l < queue->size && 
+        queue->compare(queue->heap[l], queue->heap[smallest]) < 0)
         smallest = l;
-    if (r < queue->size && queue->heap[r]->absolute_deadline < queue->heap[smallest]->absolute_deadline)
+    if (r < queue->size && 
+        queue->compare(queue->heap[r], queue->heap[smallest]) < 0)
         smallest = r;
 
     if (smallest != index) {
