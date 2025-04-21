@@ -8,6 +8,7 @@
 void printMenuOptions();
 void getArrivalAndPeriod(int* arrival_time, int* period);
 void CLIMenu();
+void select_task_to_run(char* filename, int arrival_time, int period, PriorityQueue* arriving_queue, PriorityQueue* ready_queue);
 
 int main(int argc, char* argv[]) {
     CLIMenu();
@@ -22,6 +23,16 @@ void printMenuOptions() {
     printf("3. Iniciar execução\n");
 }
 
+void select_task_to_run(char* filename, int arrival_time, int period, PriorityQueue* arriving_queue, PriorityQueue* ready_queue) {
+    TaskControlBlock* tcb = create_task(filename, arrival_time, period);
+    if(arrival_time > 0) {
+        enqueue(tcb, arriving_queue);
+    } else {
+        tcb->state = READY;
+        enqueue(tcb, ready_queue);
+    }
+}
+
 void CLIMenu() {
     int choice = 0;
     int arrival_time = 0;
@@ -29,7 +40,6 @@ void CLIMenu() {
     PriorityQueue* ready_queue = priority_queue_init(10, compare_by_deadline);
     PriorityQueue* waiting_queue = priority_queue_init(10, compare_by_deadline);
     PriorityQueue* arriving_queue = priority_queue_init(10, compare_by_arrival);
-    TaskControlBlock* tcb;
 
     while(1) {
         printMenuOptions();
@@ -38,23 +48,11 @@ void CLIMenu() {
         switch (choice) {
             case 1:
                 getArrivalAndPeriod(&arrival_time, &period);
-                tcb = create_task("programs/prog1.txt", arrival_time, period);
-                if(arrival_time > 0) {
-                    enqueue(tcb, arriving_queue);
-                } else {
-                    tcb->state = READY;
-                    enqueue(tcb, ready_queue);
-                }
+                select_task_to_run("programs/prog1.txt", arrival_time, period, arriving_queue, ready_queue);
                 break;
             case 2:
                 getArrivalAndPeriod(&arrival_time, &period);
-                tcb = create_task("programs/prog2.txt", arrival_time, period);
-                if(arrival_time > 0) {
-                    enqueue(tcb, arriving_queue);
-                } else {
-                    tcb->state = READY;
-                    enqueue(tcb, ready_queue);
-                }
+                select_task_to_run("programs/prog2.txt", arrival_time, period, arriving_queue, ready_queue);
                 break;
             case 3:
                 scheduler_init(ready_queue, waiting_queue, arriving_queue);
