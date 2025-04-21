@@ -14,11 +14,12 @@ typedef struct PriorityQueue {
 */
 
 void enqueue(TaskControlBlock* tcb, PriorityQueue* queue);
-void dequeue(PriorityQueue* queue);
+TaskControlBlock* dequeue(PriorityQueue* queue);
 PriorityQueue* priority_queue_init(int initial_capacity);
 void priority_queue_free(PriorityQueue* queue);
 void resize_queue(PriorityQueue* queue);
 void print_queue(PriorityQueue* queue);
+TaskControlBlock* peek(PriorityQueue* queue);
 
 /*
     Heap helpers

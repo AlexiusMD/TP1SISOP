@@ -77,12 +77,18 @@ void enqueue(TaskControlBlock* tcb, PriorityQueue* queue) {
     queue->size++;
 }
 
-void dequeue(PriorityQueue* queue) {
-    if (queue->size == 0) return;
+TaskControlBlock* dequeue(PriorityQueue* queue) {
+    if (queue->size == 0) return NULL;
+
+    TaskControlBlock* first_in_queue = queue->heap[0];
 
     queue->heap[0] = queue->heap[queue->size - 1];
     queue->size--;
-    heapify_down(queue, 0);
+    if (queue->size > 0) {
+        heapify_down(queue, 0);
+    }
+
+    return first_in_queue;
 }
 
 void priority_queue_free(PriorityQueue* queue) {
@@ -96,4 +102,12 @@ void print_queue(PriorityQueue* queue) {
     for (int i = 0; i < queue->size; i++) {
         printf("Task PID: %zu, Deadline: %d\n", queue->heap[i]->pid, queue->heap[i]->absolute_deadline);
     }
+}
+
+TaskControlBlock* peek(PriorityQueue* queue) {
+    if (queue == NULL || queue->size == 0) {
+        return NULL;
+    }
+
+    return queue->heap[0];
 }

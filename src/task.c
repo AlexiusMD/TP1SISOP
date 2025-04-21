@@ -20,7 +20,7 @@ TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSe
     tcb->label_count             = task_code_section->label_count;
     tcb->data                    = task_data_section->variables;
     tcb->data_count              = task_data_section->variable_count;
-    tcb->state                   = NEW;
+    tcb->state                   = READY;
 
     // EDF config
     tcb->arrival_time            = arrival_time;
