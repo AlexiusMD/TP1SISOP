@@ -108,12 +108,6 @@ void run_current_task(TaskControlBlock** current_task_ptr, PriorityQueue* waitin
     current_task->program_counter++;
     printf("Tarefa %zu executou instrução %zu\n", current_task->pid, current_task->program_counter - 1);
 
-    handle_syscalls(current_task_ptr, waiting_queue);
-}
-
-void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue) {
-    TaskControlBlock* current_task = *current_task_ptr;
-
     if (current_task->program_counter >= current_task->instruction_count) {
         printf("Tarefa %zu completou todas as instruções\n", current_task->pid);
         current_task->state = TERMINATED;
@@ -121,25 +115,28 @@ void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting
         return;
     }
 
-    if (current_task != NULL && current_task->instructions[current_task->program_counter].fn != get_instruction_function(SYSCALL)) {
+    if (current_task->instructions[current_task->program_counter].fn != get_instruction_function(SYSCALL)) {
         return;
     }
-
     
-    if (current_task != NULL) {
-        int syscall_value = atoi(current_task->instructions[current_task->program_counter].operand);
-        
-        if (syscall_value == 0) {
-            printf("Tarefa %zu finalizou com syscall(0)\n", current_task->pid);
-            current_task->state = TERMINATED;
-            *current_task_ptr = NULL;
-        } else {
-            current_task->remaining_blocking_time = rand() % 3 + 1;
-            current_task->state = WAITING;
-            printf("Tarefa %zu bloqueada por %d unidades de tempo\n", current_task->pid, current_task->remaining_blocking_time);
-            enqueue(current_task, waiting_queue);
-            *current_task_ptr = NULL;
-        }
+    handle_syscalls(current_task_ptr, waiting_queue);
+}
+
+void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue) {
+    TaskControlBlock* current_task = *current_task_ptr;
+
+    int syscall_value = atoi(current_task->instructions[current_task->program_counter].operand);
+    
+    if (syscall_value == 0) {
+        printf("Tarefa %zu finalizou com syscall(0)\n", current_task->pid);
+        current_task->state = TERMINATED;
+        *current_task_ptr = NULL;
+    } else {
+        current_task->remaining_blocking_time = rand() % 3 + 1;
+        current_task->state = WAITING;
+        printf("Tarefa %zu bloqueada por %d unidades de tempo\n", current_task->pid, current_task->remaining_blocking_time);
+        enqueue(current_task, waiting_queue);
+        *current_task_ptr = NULL;
     }
 }
 
