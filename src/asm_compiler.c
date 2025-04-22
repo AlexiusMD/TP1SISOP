@@ -36,7 +36,7 @@ TaskControlBlock* create_task(const char* filename, int arrival_time, int period
     free(task_instruction_section);
     free(task_data_section);
 
-    print_tcb(tcb);
+    //print_tcb(tcb);
 
     return tcb;
 }
@@ -90,7 +90,7 @@ TaskCodeSection* parse_instruction_section(char* instructions_text[], int count)
         if (len > 0 && line[len - 1] == ':') {
             line[len - 1] = '\0';
             labels[current_label_index].title = strdup(line);
-            labels[current_label_index].mem_pos = current_instruction_index;
+            labels[current_label_index].mem_pos = current_instruction_index - 1;
             current_label_index++;
             continue;
         }
@@ -130,7 +130,7 @@ TaskCodeSection* parse_instruction_section(char* instructions_text[], int count)
         instructions[current_instruction_index].fn = get_instruction_function(opcode);
         instructions[current_instruction_index].operand = strdup(operand_name);
 
-        if (operand_name[0] == '#') {
+        if (operand_name[0] == '#' || instructions[current_instruction_index].fn == get_instruction_function(SYSCALL)) {
             instructions[current_instruction_index].type    = PARAM_INT;
         } else if (opcode == BRANY || opcode == BRPOS || opcode == BRZERO || opcode == BRNEG) {
             instructions[current_instruction_index].type    = PARAM_LABEL;
