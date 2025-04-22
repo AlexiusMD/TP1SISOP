@@ -87,7 +87,7 @@ void print_tcb(TaskControlBlock* tcb) {
     printf("║ %-18s: %-28d ║\n", "Acumulador", tcb->acc);
     printf("║ %-18s: %-28d ║\n", "Chegada", tcb->arrival_time);
     printf("║ %-18s: %-28d ║\n", "Deadline absoluto", tcb->absolute_deadline);
-    printf("║ %-19s: %-28d ║\n", "Período", tcb->absolute_deadline);
+    printf("║ %-19s: %-28d ║\n", "Período", tcb->period);
     printf("║ %-18s: %-28d ║\n", "Tempo bloqueio", tcb->remaining_blocking_time);
     printf("╠══════════════════════════════════════════════════╣\n");
     printf("║ %-15s: %-33zu ║\n", "# Instruções", tcb->instruction_count);
@@ -98,4 +98,29 @@ void print_tcb(TaskControlBlock* tcb) {
 
 size_t get_next_pid() {
     return PID++;
+}
+
+void print_tcb_variables(TaskControlBlock* tcb) {
+    if (!tcb) {
+        printf("TCB nulo, não é possível imprimir.\n");
+        return;
+    }
+
+    printf("\n╔════════════════════════════════════════════════════════╗\n");
+    printf("║        VARIÁVEIS DO PROCESSO - PID %3zu                 ║\n", tcb->pid);
+    printf("╠════════════════════════════════════════════════════════╣\n");
+    
+    if (tcb->data_count == 0) {
+        printf("║             Nenhuma variável definida                 ║\n");
+    } else {
+        printf("║  %-25s | %-22s    ║\n", "Nome", "Valor");
+        printf("╟────────────────────────────┼───────────────────────────╢\n");
+        
+        for (int i = 0; i < tcb->data_count; i++) {
+            printf("║  %-25s | %-22d    ║\n", 
+                   tcb->data[i].name, tcb->data[i].value);
+        }
+    }
+    
+    printf("╚════════════════════════════════════════════════════════╝\n");
 }

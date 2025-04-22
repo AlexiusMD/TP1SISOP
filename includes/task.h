@@ -51,10 +51,9 @@ typedef struct TaskControlBlock {
     int remaining_blocking_time;
 } TaskControlBlock;
 
-int calculate_deadline(Instruction* instructions, size_t instruction_count);
-
 TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSection* task_data_section, int arrival_time, int period);
 void free_tcb(TaskControlBlock* tcb);
 size_t get_next_pid();
 void print_tcb(TaskControlBlock* tcb);
+void print_tcb_variables(TaskControlBlock* tcb);
 #endif
