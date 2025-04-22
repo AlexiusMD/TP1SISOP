@@ -34,5 +34,5 @@ void brneg_wrapper(TaskControlBlock* tcb, void* operand) {
     brneg(tcb, (Label*)operand);
 }
 void syscall_wrapper(TaskControlBlock* tcb, void* operand) {
-    syscall(tcb, *((int*) operand));
+    syscall_(tcb, *((int*) operand));
 }

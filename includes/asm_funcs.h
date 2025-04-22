@@ -33,7 +33,7 @@ void brneg     (TaskControlBlock* tcb, Label* label);
 /*
     System call
 */
-void syscall    (TaskControlBlock* tcb, int index);
+void syscall_    (TaskControlBlock* tcb, int index);
 
 /*
     Helper

@@ -67,15 +67,14 @@ void brneg(TaskControlBlock* tcb, Label* label) {
 /*
     System call
 */
-void syscall(TaskControlBlock* tcb, int index) {
+void syscall_(TaskControlBlock* tcb, int index) {
     if (index == 0) {
         tcb->state = TERMINATED;
-        free_tcb(tcb);
         return;
     }
 
     if (index == 1) {
-        printf("%d", tcb->acc);
+        printf("Syscall 1 -> Printing accumulator value: %d\n", tcb->acc);
     }
 
     if (index == 2) {
