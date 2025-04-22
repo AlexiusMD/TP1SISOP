@@ -11,6 +11,7 @@ void handle_blocked_queue(PriorityQueue* ready_queue, PriorityQueue* waiting_que
 void handle_ready_queue(PriorityQueue* ready_queue, TaskControlBlock** running_task_ptr);
 void run_current_task(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue);
 void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue);
+void check_missed_deadlines(PriorityQueue* ready_queue, TaskControlBlock** current_task_ptr, size_t current_time);
 void run_instruction(TaskControlBlock* tcb);
 void print_queue_states(PriorityQueue* ready_queue, PriorityQueue* waiting_queue, PriorityQueue* arriving_queue);
 

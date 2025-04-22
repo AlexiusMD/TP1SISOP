@@ -7,21 +7,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 
 void scheduler_init(PriorityQueue* ready_queue, PriorityQueue* waiting_queue, PriorityQueue* arriving_queue) {
     size_t current_time = 0;
     TaskControlBlock* running_task = NULL;
 
     while (ready_queue->size > 0 || waiting_queue->size > 0 || arriving_queue->size > 0 || running_task != NULL) {
-        print_queue_states(ready_queue, waiting_queue, arriving_queue);
+        printf("Tempo atual: %zu\n", current_time);
+        //print_queue_states(ready_queue, waiting_queue, arriving_queue);
         handle_arriving_queue(ready_queue, arriving_queue, current_time);
         handle_blocked_queue(ready_queue, waiting_queue);
         handle_ready_queue(ready_queue, &running_task);
         run_current_task(&running_task, waiting_queue);
-        current_time++;
+        check_missed_deadlines(ready_queue, &running_task, current_time);
+        print_tcb(running_task);
+        print_tcb_variables(running_task);
+        sleep(1);
         if (arriving_queue->size == 0 && ready_queue->size == 0 && waiting_queue->size == 0 && running_task == NULL) {
             break;
         }
+        current_time++;
     }
 
     printf("\nTodas as tarefas foram concluídas no tempo %zu\n", current_time);
@@ -65,10 +71,11 @@ void handle_blocked_queue(PriorityQueue* ready_queue, PriorityQueue* waiting_que
 
         blocked_task->remaining_blocking_time--;
         
-        if (blocked_task->remaining_blocking_time <= 0) {
+        if (blocked_task->remaining_blocking_time < 0) {
             dequeue(waiting_queue);
             blocked_task->state = READY;
             printf("Tarefa %zu desbloqueada\n", blocked_task->pid);
+            blocked_task->remaining_blocking_time = 0;
             enqueue(blocked_task, ready_queue);
         } else {
             break;
@@ -104,18 +111,11 @@ void run_current_task(TaskControlBlock** current_task_ptr, PriorityQueue* waitin
         return;
     }
 
+    printf("Tarefa %zu executou instrução de OPCode %d - Instrução número %zu\n", current_task->pid, get_opcode_from_function(current_task->instructions[current_task->program_counter].fn), current_task->program_counter);
     run_instruction(current_task);
     current_task->program_counter++;
-    printf("Tarefa %zu executou instrução %zu\n", current_task->pid, current_task->program_counter - 1);
 
-    if (current_task->program_counter >= current_task->instruction_count) {
-        printf("Tarefa %zu completou todas as instruções\n", current_task->pid);
-        current_task->state = TERMINATED;
-        *current_task_ptr = NULL;
-        return;
-    }
-
-    if (current_task->instructions[current_task->program_counter].fn != get_instruction_function(SYSCALL)) {
+    if (current_task->instructions[current_task->program_counter - 1].fn != get_instruction_function(SYSCALL)) {
         return;
     }
     
@@ -125,11 +125,12 @@ void run_current_task(TaskControlBlock** current_task_ptr, PriorityQueue* waitin
 void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting_queue) {
     TaskControlBlock* current_task = *current_task_ptr;
 
-    int syscall_value = atoi(current_task->instructions[current_task->program_counter].operand);
+    int syscall_value = atoi(current_task->instructions[current_task->program_counter - 1].operand);
     
     if (syscall_value == 0) {
         printf("Tarefa %zu finalizou com syscall(0)\n", current_task->pid);
         current_task->state = TERMINATED;
+        print_tcb_variables(current_task);
         *current_task_ptr = NULL;
     } else {
         current_task->remaining_blocking_time = rand() % 3 + 1;
@@ -140,25 +141,58 @@ void handle_syscalls(TaskControlBlock** current_task_ptr, PriorityQueue* waiting
     }
 }
 
+void check_missed_deadlines(PriorityQueue* ready_queue, TaskControlBlock** current_task_ptr, size_t current_time) {
+    TaskControlBlock* current_task = *current_task_ptr;
+
+    if (current_task == NULL) {
+        return;
+    }
+
+    if (current_task->state != TERMINATED && current_time > current_task->absolute_deadline) {
+        printf("Tarefa %zu perdeu o deadline (deadline era %d, tempo atual é %zu). ", current_task->pid, current_task->absolute_deadline, current_time);
+        while (current_task->absolute_deadline <= current_time) {
+            current_task->absolute_deadline += current_task->period;
+        }
+        printf("Seu novo deadline é %d.\n", current_task->absolute_deadline);
+        current_task->state = READY;
+        enqueue(current_task, ready_queue);
+        *current_task_ptr = NULL;
+    }
+}
+
 void run_instruction(TaskControlBlock* tcb) {
     ParamType instruction_param = tcb->instructions[tcb->program_counter].type;
     int program_counter = tcb->program_counter;
     int literal_integer;
     const char* label;
+    const char* operand = tcb->instructions[program_counter].operand;
 
     switch (instruction_param) {
         case PARAM_INT:
-            literal_integer = atoi(tcb->instructions[program_counter].operand);
+            if (operand[0] == '#') {
+                operand++;
+            }
+            literal_integer = atoi(operand);
             tcb->instructions[program_counter].fn(tcb, &literal_integer); 
             break;
         case PARAM_STRING:
-            tcb->instructions[program_counter].fn(tcb, tcb->instructions[program_counter].operand);
+            if (get_opcode_from_function(tcb->instructions[program_counter].fn) <= 3) {
+                for (int i = 0; i < tcb->data_count; i++) {
+                    if (strcmp(tcb->data[i].name, operand) == 0) {
+                        literal_integer = tcb->data[i].value;
+                        tcb->instructions[program_counter].fn(tcb, &literal_integer);
+                        break;
+                    }
+                }
+            } else {
+                tcb->instructions[program_counter].fn(tcb, tcb->instructions[program_counter].operand);
+            }
             break;
         case PARAM_LABEL:
             label = tcb->instructions[program_counter].operand;
             for (int i = 0; i < tcb->label_count; i++) {
                 if (strcmp(tcb->labels[i].title, label) == 0) {
-                    tcb->instructions[program_counter].fn(tcb, &tcb->labels[i].mem_pos);
+                    tcb->instructions[program_counter].fn(tcb, &tcb->labels[i]);
                     break;
                 }
             }
