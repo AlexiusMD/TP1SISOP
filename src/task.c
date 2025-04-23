@@ -2,6 +2,8 @@
 #include "../includes/asm_compiler.h"
 #include "../includes/helpers.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
 
 static int PID = 0;
 

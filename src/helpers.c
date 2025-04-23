@@ -4,6 +4,7 @@
 #include "../includes/asm_wrapper.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 /*

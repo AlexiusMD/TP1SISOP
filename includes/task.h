@@ -1,8 +1,8 @@
 #ifndef TASK_H
 #define TASK_H
 
-#include <stdlib.h>
-#include <stdint.h>
+typedef unsigned long size_t;
+typedef int int32_t;
 
 typedef enum TaskStates {
     NEW,

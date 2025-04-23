@@ -1,7 +1,9 @@
 #ifndef ASM_FUNCS_H
 #define ASM_FUNCS_H
 
-#include <stdbool.h>
+#ifndef __bool_true_false_are_defined
+typedef _Bool bool;
+#endif
 
 typedef struct TaskControlBlock TaskControlBlock;
 typedef struct Label Label;

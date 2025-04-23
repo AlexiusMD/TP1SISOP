@@ -5,6 +5,7 @@
 #include "../includes/task.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 TaskControlBlock* create_task(const char* filename, int arrival_time, int period) {
     char* buffer = read_program_file(filename);

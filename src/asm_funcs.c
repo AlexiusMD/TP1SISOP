@@ -4,6 +4,7 @@
 #include "../includes/helpers.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /*
     Arithmetic operations (Operate on the accumulator)

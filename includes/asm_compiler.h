@@ -1,11 +1,10 @@
 #ifndef ASM_COMPILER_H
 #define ASM_COMPILER_H
 
-#include <stdlib.h>
-
 #define BAD_SYNTAX printf("Syntax formatting error\n");
 
 typedef struct TaskControlBlock TaskControlBlock;
+typedef unsigned long size_t;
 
 typedef enum OPCode {
     ADD,
