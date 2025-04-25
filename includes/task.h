@@ -19,7 +19,7 @@ typedef struct TaskCodeSection TaskCodeSection;
 typedef struct TaskDataSection TaskDataSection;
 
 typedef struct TaskControlBlock {
-    size_t pid; // Process ID
+    int pid; // Process ID
     TaskStates state; // Estado atual do processo
 
     // ----------------------------
@@ -49,9 +49,14 @@ typedef struct TaskControlBlock {
     int absolute_deadline;
     int remaining_time;
     int remaining_blocking_time;
+
+    // ----------------------------
+    // Caminho para arquivo fonte
+    // ----------------------------
+    const char* filepath;
 } TaskControlBlock;
 
-TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSection* task_data_section, int arrival_time, int period);
+TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSection* task_data_section, int arrival_time, int period, const char* filepath, int pid);
 void free_tcb(TaskControlBlock* tcb);
 size_t get_next_pid();
 void print_tcb(TaskControlBlock* tcb);

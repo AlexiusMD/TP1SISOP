@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-TaskControlBlock* create_task(const char* filename, int arrival_time, int period) {
+TaskControlBlock* create_task(const char* filename, int arrival_time, int period, int pid) {
     char* buffer = read_program_file(filename);
 
     int count = 0;
@@ -20,7 +20,7 @@ TaskControlBlock* create_task(const char* filename, int arrival_time, int period
 
     TaskDataSection* task_data_section = parse_data_section(data_section, count);
 
-    TaskControlBlock* tcb = instantiate_tcb(task_instruction_section, task_data_section, arrival_time, period);
+    TaskControlBlock* tcb = instantiate_tcb(task_instruction_section, task_data_section, arrival_time, period, filename, pid);
     if (!tcb) {
         printf("Memory allocation error - TaskControlBlock\n");
         free(buffer);

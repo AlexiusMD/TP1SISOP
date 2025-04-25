@@ -7,7 +7,7 @@
 
 static int PID = 0;
 
-TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSection* task_data_section, int arrival_time, int period) {
+TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSection* task_data_section, int arrival_time, int period, const char* filepath, int pid) {
     TaskControlBlock* tcb = (TaskControlBlock*) malloc(sizeof(TaskControlBlock));
 
     if (!tcb) {
@@ -15,7 +15,7 @@ TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSe
         return NULL;
     }
 
-    tcb->pid                     = get_next_pid();
+    tcb->pid                     = pid < 0 ? get_next_pid() : pid;
     tcb->instructions            = task_code_section->instructions;
     tcb->instruction_count       = task_code_section->instruction_count;
     tcb->labels                  = task_code_section->labels;
@@ -36,6 +36,8 @@ TaskControlBlock* instantiate_tcb(TaskCodeSection* task_code_section, TaskDataSe
     tcb->program_counter         = 0;
     tcb->acc                     = 0;
     tcb->remaining_blocking_time = 0;
+
+    tcb->filepath = filepath;
 
     return tcb;
 }
@@ -79,7 +81,7 @@ void print_tcb(TaskControlBlock* tcb) {
     }
 
     printf("\n╔══════════════════════════════════════════════════╗\n");
-    printf("║              TASK CONTROL BLOCK - PID %3zu        ║\n", tcb->pid);
+    printf("║              TASK CONTROL BLOCK - PID %3d        ║\n", tcb->pid);
     printf("╠══════════════════════════════════════════════════╣\n");
 
     const char* states[] = {"NOVO", "EXECUTANDO", "ESPERANDO", "PRONTO", "TERMINADO"};
@@ -109,7 +111,7 @@ void print_tcb_variables(TaskControlBlock* tcb) {
     }
 
     printf("\n╔════════════════════════════════════════════════════════╗\n");
-    printf("║        VARIÁVEIS DO PROCESSO - PID %3zu                 ║\n", tcb->pid);
+    printf("║        VARIÁVEIS DO PROCESSO - PID %3d                 ║\n", tcb->pid);
     printf("╠════════════════════════════════════════════════════════╣\n");
     
     if (tcb->data_count == 0) {

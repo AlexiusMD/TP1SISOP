@@ -14,5 +14,6 @@ int    get_op_code_from_instruction_name(char* name);
 char*   to_lowercase(char* str);
 InstructionFn get_instruction_function(OPCode opcode);
 int get_opcode_from_function(InstructionFn fn);
+const char* get_instruction_name_from_opcode(OPCode opcode);
 
 #endif

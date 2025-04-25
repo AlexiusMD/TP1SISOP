@@ -167,3 +167,20 @@ int get_opcode_from_function(InstructionFn fn) {
     if (fn == get_instruction_function(SYSCALL)) return SYSCALL;
     return -1;
 }
+
+const char* get_instruction_name_from_opcode(OPCode opcode) {
+    switch (opcode) {
+        case ADD:     return "ADD";
+        case SUB:     return "SUB";
+        case MULT:    return "MULT";
+        case DIV:     return "DIV";
+        case LOAD:    return "LOAD";
+        case STORE:   return "STORE";
+        case BRANY:   return "BRANY";
+        case BRPOS:   return "BRPOS";
+        case BRZERO:  return "BRZERO";
+        case BRNEG:   return "BRNEG";
+        case SYSCALL: return "SYSCALL";
+        default:      return NULL;
+    }
+}

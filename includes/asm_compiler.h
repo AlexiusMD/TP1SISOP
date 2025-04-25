@@ -56,7 +56,7 @@ typedef struct TaskDataSection {
     size_t variable_count;
 } TaskDataSection;
 
-TaskControlBlock* create_task(const char* filename, int arrival_time, int period);
+TaskControlBlock* create_task(const char* filename, int arrival_time, int period, int pid);
 TaskCodeSection* parse_instruction_section(char* instructions_text[], int count);
 TaskDataSection* parse_data_section(char* data_text[], int count);
 

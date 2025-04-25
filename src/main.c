@@ -24,7 +24,7 @@ void printMenuOptions() {
 }
 
 void select_task_to_run(char* filename, int arrival_time, int period, PriorityQueue* arriving_queue, PriorityQueue* ready_queue) {
-    TaskControlBlock* tcb = create_task(filename, arrival_time, period);
+    TaskControlBlock* tcb = create_task(filename, arrival_time, period, -1);
     if(arrival_time > 0) {
         enqueue(tcb, arriving_queue);
     } else {
